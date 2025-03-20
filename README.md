@@ -129,7 +129,9 @@ yarn build
 
 ### IView
 
+Интерфейс, описывающий базовую структуру представления (View) в DOM.
+
 - `element` : `HTMLElement` - корневой HTML-элемент представления.
-- `createElement(tagName: string, className?: string): HTMLElement;` - информация о товаре.
-- `addChild(child: Node): void;` - информация о товаре.
-- `render(): HTMLElement;` - информация о товаре.
+- `createElement(tagName: string, className?: string): HTMLElement;` - cоздает новый HTML-элемент с указанным тегом и (опционально) классом.
+- `addChild(child: Node): void;` - добавляет дочерний элемент в текущее представление.
+- `render(): HTMLElement;` - возвращает корневой элемент представления.
