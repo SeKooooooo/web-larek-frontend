@@ -1,6 +1,6 @@
 export interface IModal {
 	modal: HTMLElement;
-	render(element: HTMLElement): void;
+	renderModal(element: HTMLElement): void;
 	onClose(): void;
 }
 
@@ -17,7 +17,7 @@ export abstract class Modal implements IModal {
 		document.body.style.overflow = 'auto';
 	}
 
-	render(element: HTMLElement) {
+	renderModal(element: HTMLElement) {
 		this.modal.querySelector('.modal__close').addEventListener('click', () => {
 			this.onClose();
 		});

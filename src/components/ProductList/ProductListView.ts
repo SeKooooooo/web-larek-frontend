@@ -3,19 +3,18 @@ import { CDN_URL, typesProduct } from '../../utils/constants';
 import { EventEmitter } from '../base/events';
 
 export interface IProductListView {
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
 	_event: EventEmitter;
 	render(products: IProduct[]): void;
 }
 
 export class ProductListView implements IProductListView {
-	products: IProduct[];
 	_event: EventEmitter;
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
 
 	constructor(eventEmitter: EventEmitter) {
 		this._event = eventEmitter;
-		this.template = document.querySelector(
+		this._template = document.querySelector(
 			'#card-catalog'
 		) as HTMLTemplateElement;
 	}
@@ -23,7 +22,9 @@ export class ProductListView implements IProductListView {
 	render(products: IProduct[]) {
 		const gallery = document.querySelector('.gallery');
 		products.forEach((product) => {
-			const element = this.template.content.cloneNode(true) as DocumentFragment;
+			const element = this._template.content.cloneNode(
+				true
+			) as DocumentFragment;
 			const cardElement = element.firstElementChild as HTMLElement;
 			cardElement.querySelector('.card__title').textContent = product.title;
 			cardElement.querySelector('.card__category').textContent =

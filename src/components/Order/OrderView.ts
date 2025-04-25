@@ -1,29 +1,30 @@
 import { IModal, Modal } from '../../types/modal';
 import { PaymentMethod } from '../../types/order';
-import { IProduct } from '../../types/product';
 import { EventEmitter } from '../base/events';
 
-export interface IOrderViewFirst {
+export interface IOrderView {
 	_event: EventEmitter;
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
+}
+
+export interface IOrderViewFirst extends IModal, IOrderView {
 	open(): void;
 	renderButtonSubmit(disabled: boolean): void;
 	renderButtons(value: PaymentMethod): void;
-	onClose(): void;
 }
 
 export class OrderViewFirst extends Modal implements IOrderViewFirst {
 	_event: EventEmitter;
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
 
 	constructor(eventEmitter: EventEmitter) {
 		super();
 		this._event = eventEmitter;
-		this.template = document.querySelector('#order') as HTMLTemplateElement;
+		this._template = document.querySelector('#order') as HTMLTemplateElement;
 	}
 
 	open() {
-		const parent = this.template.content.cloneNode(true) as DocumentFragment;
+		const parent = this._template.content.cloneNode(true) as DocumentFragment;
 		const order = parent.firstElementChild as HTMLElement;
 		order.querySelector('#address').addEventListener('input', (e) => {
 			this._event.emit('address:change', e.target as HTMLInputElement);
@@ -37,7 +38,7 @@ export class OrderViewFirst extends Modal implements IOrderViewFirst {
 		order.querySelector('.order__button').addEventListener('click', () => {
 			this._event.emit('order:next');
 		});
-		this.render(order);
+		this.renderModal(order);
 	}
 
 	renderButtonSubmit(disabled: boolean) {
@@ -59,26 +60,23 @@ export class OrderViewFirst extends Modal implements IOrderViewFirst {
 	}
 }
 
-export interface IOrderViewSecond {
-	_event: EventEmitter;
-	template: HTMLTemplateElement;
+export interface IOrderViewSecond extends IModal, IOrderView {
 	open(): void;
 	renderButtonSubmit(disabled: boolean): void;
-	onClose(): void;
 }
 
 export class OrderViewSecond extends Modal implements IOrderViewSecond {
 	_event: EventEmitter;
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
 
 	constructor(eventEmitter: EventEmitter) {
 		super();
 		this._event = eventEmitter;
-		this.template = document.querySelector('#contacts') as HTMLTemplateElement;
+		this._template = document.querySelector('#contacts') as HTMLTemplateElement;
 	}
 
 	open() {
-		const parent = this.template.content.cloneNode(true) as DocumentFragment;
+		const parent = this._template.content.cloneNode(true) as DocumentFragment;
 		const contacts = parent.firstElementChild as HTMLElement;
 		contacts.querySelector('#email').addEventListener('input', (e) => {
 			this._event.emit('email:change', e.target as HTMLInputElement);
@@ -89,7 +87,7 @@ export class OrderViewSecond extends Modal implements IOrderViewSecond {
 		contacts.querySelector('#pay').addEventListener('click', () => {
 			this._event.emit('contacts:next');
 		});
-		this.render(contacts);
+		this.renderModal(contacts);
 	}
 
 	renderButtonSubmit(disabled: boolean) {
@@ -101,24 +99,22 @@ export class OrderViewSecond extends Modal implements IOrderViewSecond {
 	}
 }
 
-export interface IOrderViewFinal {
-	_event: EventEmitter;
-	template: HTMLTemplateElement;
+export interface IOrderViewFinal extends IModal, IOrderView {
 	open(total: number): void;
 }
 
 export class OrderViewFinal extends Modal implements IOrderViewFinal {
 	_event: EventEmitter;
-	template: HTMLTemplateElement;
+	_template: HTMLTemplateElement;
 
 	constructor(eventEmitter: EventEmitter) {
 		super();
 		this._event = eventEmitter;
-		this.template = document.querySelector('#success') as HTMLTemplateElement;
+		this._template = document.querySelector('#success') as HTMLTemplateElement;
 	}
 
 	open(total: number) {
-		const parent = this.template.content.cloneNode(true) as DocumentFragment;
+		const parent = this._template.content.cloneNode(true) as DocumentFragment;
 		const success = parent.firstElementChild as HTMLElement;
 		success
 			.querySelector('.order-success__close')
@@ -128,6 +124,6 @@ export class OrderViewFinal extends Modal implements IOrderViewFinal {
 		success.querySelector(
 			'.order-success__description'
 		).textContent = `Списано ${total} синапсов`;
-		this.render(success);
+		this.renderModal(success);
 	}
 }

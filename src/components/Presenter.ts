@@ -16,6 +16,7 @@ import {
 	OrderViewFirst,
 	OrderViewSecond,
 } from './Order/OrderView';
+import { PageView } from './PageView';
 import {
 	IProductListModel,
 	ProductListModel,
@@ -35,13 +36,8 @@ interface IPresenter {
 	cardProductView: ICardProductView;
 	productListModel: IProductListModel;
 	productListView: IProductListView;
-	deleteItem(id: number): void;
-	makeOrder(): void;
-	addItem(product: IProduct): void;
-	changePayment(payment: PaymentMethod): void;
-	changeAddress(value: string): void;
-	changeEmail(value: string): void;
-	changeNumber(value: string): void;
+	pageView: PageView;
+	initialListeners(): void;
 }
 
 export class Presenter implements IPresenter {
@@ -54,6 +50,7 @@ export class Presenter implements IPresenter {
 	cardProductView: ICardProductView;
 	productListModel: IProductListModel;
 	productListView: IProductListView;
+	pageView: PageView;
 	_event: EventEmitter;
 
 	constructor() {
@@ -67,10 +64,19 @@ export class Presenter implements IPresenter {
 		this.orderViewSecond = new OrderViewSecond(this._event);
 		this.orderModel = new OrderModel(this._event);
 		this.orderViewFinal = new OrderViewFinal(this._event);
+		this.pageView = new PageView(this._event);
 
+		this.pageView.basketButtonClick();
+		this.productListModel.getItems();
+
+		this.initialListeners();
+	}
+
+	initialListeners() {
 		this._event.on('product:get', (items: IProduct[]) =>
 			this.productListView.render(items)
 		);
+
 		this._event.on('product:click', (product: IProduct) => {
 			const isInBasket = this.basketModel.isInBasket(product);
 			this.cardProductView.onClickOpen(product, isInBasket);
@@ -79,33 +85,31 @@ export class Presenter implements IPresenter {
 		this._event.on('addButton:click', (product: IProduct) => {
 			this.basketModel.add(product);
 			this.cardProductView.renderButton();
-			this.basketView.renderCount(this.basketModel.items.length);
+			this.pageView.renderCount(this.basketModel.getItems.length);
 		});
 
 		this._event.on('basket:open', () => {
-			const products = this.basketModel.items;
-			const total_price = this.basketModel.total_price;
-			this.basketView.onClickOpen(products, total_price);
+			this.basketView.onClickOpen(
+				this.basketModel.getItems,
+				this.basketModel.getTotalPrice
+			);
 		});
 
-		this._event.on('basketView:delete', (item: IProduct) => {
+		this._event.on('basket:delete', (item: IProduct) => {
 			this.basketModel.remove(item);
-			this.basketView.renderCount(this.basketModel.items.length);
+			this.pageView.renderCount(this.basketModel.getItems.length);
+			this.basketView.renderBasket(
+				this.basketModel.getItems,
+				this.basketModel.getTotalPrice
+			);
 		});
-
-		this._event.on(
-			'basketModel:delete',
-			(data: { items: IProduct[]; totalPrice: number }) => {
-				this.basketView.renderBasket(data.items, data.totalPrice);
-			}
-		);
 
 		this._event.on('create:click', () => {
 			this.basketView.onClose();
 			this.orderViewFirst.open();
 			this.orderModel.clearOrder();
-			this.orderModel.setProducts(this.basketModel.items);
-			this.orderModel.setTotal(this.basketModel.total_price);
+			this.orderModel.setProducts(this.basketModel.getItems);
+			this.orderModel.setTotal(this.basketModel.getTotalPrice);
 		});
 
 		this._event.on('address:change', (target: HTMLInputElement) => {
@@ -153,28 +157,12 @@ export class Presenter implements IPresenter {
 		this._event.on('contacts:next', () => {
 			this.orderViewSecond.onClose();
 			this.orderModel.postOrder();
-			//this.orderViewSecond.open();
 		});
 
 		this._event.on('order:created', (data: { id: string; total: number }) => {
-			this.basketModel.items = [];
+			this.basketModel.clear();
 			this.orderViewFinal.open(data.total);
+			this.pageView.renderCount(0);
 		});
-
-		this.basketView.addListener();
-		this.productListModel.getItems();
 	}
-	addItem(product: IProduct): void {}
-
-	changeEmail(value: string): void {}
-
-	changeAddress(value: string): void {}
-
-	changeNumber(value: string): void {}
-
-	changePayment(payment: PaymentMethod): void {}
-
-	deleteItem(id: number): void {}
-
-	makeOrder(): void {}
 }

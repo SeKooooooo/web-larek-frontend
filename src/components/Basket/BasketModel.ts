@@ -1,41 +1,53 @@
 import { IProduct } from '../../types/product';
 import { EventEmitter } from '../base/events';
 
-export interface IBasketModel {
-	items: IProduct[];
+export type IBasketModel = {
+	_items: IProduct[];
 	_event: EventEmitter;
-	total_price: number;
+	_total_price: number;
+	getItems: IProduct[];
+	getTotalPrice: number;
 	add(product: IProduct): void;
 	remove(product: IProduct): void;
 	isInBasket(product: IProduct): boolean;
-}
+	clear(): void;
+};
 
 export class BasketModel implements IBasketModel {
 	_event: EventEmitter;
-	items: IProduct[];
-	total_price: number;
+	_items: IProduct[];
+	_total_price: number;
 
 	constructor(eventEmitter: EventEmitter) {
 		this._event = eventEmitter;
-		this.items = [];
-		this.total_price = 0;
+		this._items = [];
+		this._total_price = 0;
+	}
+
+	get getItems() {
+		return this._items;
+	}
+
+	get getTotalPrice() {
+		return this._total_price;
 	}
 
 	isInBasket(product: IProduct): boolean {
-		return !!this.items.find((item) => item.id === product.id);
+		return !!this._items.find((item) => item.id === product.id);
 	}
 
 	add(product: IProduct): void {
-		this.items.push(product);
-		this.total_price += product.price;
+		this._items.push(product);
+		this._total_price += product.price;
 	}
 
 	remove(product: IProduct): void {
-		this.items = this.items.filter((item) => item.id !== product.id) || [];
-		this.total_price -= product.price;
-		this._event.emit('basketModel:delete', {
-			items: this.items,
-			totalPrice: this.total_price,
-		});
+		this._items = this._items.filter((item) => item.id !== product.id) || [];
+		this._total_price -= product.price;
+	}
+
+	clear(): void {
+		this._items = [];
+		this._total_price = 0;
 	}
 }

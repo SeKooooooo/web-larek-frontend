@@ -39,7 +39,7 @@ export class CardProductView extends Modal implements ICardProductView {
 				this._event.emit('addButton:click', product);
 			});
 		}
-		this.render(element);
+		this.renderModal(element);
 	}
 
 	renderButton() {
