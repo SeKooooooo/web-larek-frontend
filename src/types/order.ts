@@ -1,10 +1,10 @@
-export type PaymentMethod = 'online' | 'offline';
+export type PaymentMethod = 'online' | 'offline' | undefined;
 
 export interface IOrder {
 	address: string;
-	payment_method: PaymentMethod;
+	payment: PaymentMethod;
 	email: string;
-	number_telephone: string;
-	total_price: number;
+	phone: string;
+	total: number;
 	items: number[];
 }
